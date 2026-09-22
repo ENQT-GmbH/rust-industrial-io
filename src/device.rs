@@ -73,6 +73,23 @@ impl Device {
         unsafe { ffi::iio_device_is_trigger(self.dev) }
     }
 
+    /// Gets the associated trigger.
+    pub fn get_trigger(&self) -> Result<Device> {
+        let mut trig: *const ffi::iio_device = ptr::null_mut();
+
+        sys_result(
+            unsafe { ffi::iio_device_get_trigger(self.dev, &mut trig) },
+            (),
+        )?;
+
+        debug_assert!(!trig.is_null());
+
+        Ok(Device {
+            dev: trig as *mut _,
+            ctx: self.context(),
+        })
+    }
+
     /// Associate a trigger for this device.
     /// `trigger` The device to be used as a trigger.
     pub fn set_trigger(&self, trigger: &Self) -> Result<()> {
